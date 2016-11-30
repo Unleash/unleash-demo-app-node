@@ -8,7 +8,7 @@ const app = express();
 
 const instance = unleash.initialize({
     appName: 'demo-app',
-    url: 'http://localhost:4242/',
+    url: 'http://localhost:4242/api/',
     refreshIntervall: 4000,
     metricsInterval: 10000,
     strategies: [
