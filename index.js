@@ -7,10 +7,10 @@ const chalk = require('chalk');
 const app = express();
 
 const instance = unleash.initialize({
-    appName: 'demo-app',
+    appName: 'demo-app-2',
     url: 'http://localhost:4242/api/',
     refreshIntervall: 4000,
-    metricsInterval: 10000,
+    metricsInterval: 1000,
     strategies: [
         new unleash.Strategy('extra', true),
     ],
