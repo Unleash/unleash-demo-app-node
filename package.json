@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "express": "^4.14.0",
-    "unleash-client": "^1.0.0-alpha.4"
+    "throat": "^3.0.0",
+    "unleash-client": "^1.0.0-beta.5"
   },
   "devDependencies": {
     "@types/express": "^4.0.33",

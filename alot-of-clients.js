@@ -1,41 +1,50 @@
 'use strict';
 
-const unleash = require('unleash-client');
+const { Unleash, Strategy } = require('unleash-client');
+const throat = require('throat')(2);
 
-new Array(1000)
+Promise.all(new Array(1000)
     .join(',')
     .split(',')
-    .forEach((v, index) => {
-        const instance = new unleash.Unleash({
-            appName: `demo-app-${index % 5}`,
-            instanceId: `index-${index}`,
-            url: 'http://localhost:4242/api/',
-            refreshIntervall: 4000,
-            metricsInterval: 10000,
-            strategies: [
-                new unleash.Strategy('extra', true),
-            ],
-        });
+    .map((v, index) => {
+    return throat(() => {
+        return new Promise(resolve => {
+            const instance = new Unleash({
+                appName: `demo-app-${index % 20}`,
+                instanceId: `index-${index}`,
+                url: 'http://localhost:4242/api/',
+                refreshIntervall: 60 * 1000,
+                metricsInterval: 10 * 1000,
+                strategies: [
+                    new Strategy('extra', true),
+                ],
+            });
 
+            let toggles = [];
+            instance.repository.on('data', () => {
+                toggles = Object.keys(instance.repository.storage.data);
+            });
 
-        instance.on('ready', () => {
-            console.log('connected to unleash', index);
-
-            setInterval(() => {
-                instance.isEnabled('toggle-1', null, Boolean(Math.round(Math.random() * 2)));
-            }, Math.round(Math.random() * 1000));
-            setInterval(() => {
-                instance.isEnabled('toggle-2', null, Boolean(Math.round(Math.random() * 2)));
-            }, 1500);
-            setInterval(() => {
-                instance.isEnabled('toggle-3', null, Boolean(Math.round(Math.random() * 2)));
-            }, 1300);
-            setInterval(() => {
-                instance.isEnabled('toggle-4', null, Boolean(Math.round(Math.random() * 2)));
-            }, 1300);
+            instance.on('ready', () => {
+                console.log('Connected to unleash', index);
+                setInterval(() => {
+                    toggles.forEach((toggleName, index) => {
+                        const t = toggleName;
+                        setTimeout(() => {
+                            const result = instance.isEnabled(t, null, Boolean(Math.round(Math.random() * 2)));
+                            // console.log(t, result);
+                        }, Math.round(Math.random() * 1500))
+                    });
+                }, 2500);
+                setTimeout(resolve, 100);
+            });
+            instance.on('error', (err) => {
+                console.error('error index', index, err.message);
+                resolve();
+            });
+            instance.on('warn', (msg) => {
+                 console.warn('warn:', msg);
+            });
         });
-        instance.on('error', (err) => {
-            console.error('index', index, err.message);
-        });
-        instance.on('warn', console.warn);
     });
+}));

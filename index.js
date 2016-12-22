@@ -16,7 +16,7 @@ const instance = unleash.initialize({
     ],
 });
 
-let toggles;
+let toggles = [];
 instance.repository.on('data', () => {
     toggles = Object.keys(instance.repository.storage.data);
 });
