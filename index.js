@@ -7,36 +7,45 @@ const chalk = require('chalk');
 const app = express();
 
 const instance = unleash.initialize({
-    appName: 'demo-app-2',
+    appName: 'demo-app',
     url: 'http://localhost:4242/api/',
-    refreshIntervall: 4000,
-    metricsInterval: 1000,
+    refreshIntervall: 1000,
+    metricsInterval: 500,
     strategies: [
         new unleash.Strategy('extra', true),
     ],
 });
 
+let toggles;
+instance.repository.on('data', () => {
+    toggles = Object.keys(instance.repository.storage.data);
+});
 
 instance.on('ready', () => {
     console.log('connected to unleash');
 
     setInterval(() => {
-        const result = unleash.isEnabled('add-feature-2', null, Boolean(Math.round(Math.random() * 2)));
-        console.log(chalk.yellow('add-feature-2'), chalk.blue(result.toString()));
-    }, 1000);
+        toggles.forEach(toggleName => {
+            unleash.isEnabled(toggleName, null, Boolean(Math.round(Math.random() * 2)));
+        });
+    }, 100);
+
     setInterval(() => {
-        const result = unleash.isEnabled('toggle-2', null, Boolean(Math.round(Math.random() * 2)));
-        console.log(chalk.green('toggle-2'), chalk.blue(result.toString()));
-    }, 1500);
+        unleash.isEnabled('toggle-x', null, Boolean(Math.round(Math.random() * 2)));
+    }, 50);
     setInterval(() => {
-        const result = unleash.isEnabled('toggle-3', null, Boolean(Math.round(Math.random() * 2)));
-        console.log(chalk.red('toggle-3'), chalk.blue(result.toString()));
-    }, 1500);
+        unleash.isEnabled('toggle-2', null, Boolean(Math.round(Math.random() * 2)));
+    }, 100);
+    setInterval(() => {
+        unleash.isEnabled('toggle-3', null, Boolean(Math.round(Math.random() * 2)));
+    }, 5);
 });
 instance.on('error', (err) => {
     console.error(err.message, err.stack);
 });
-instance.on('warn', console.warn);
+instance.on('warn', (msg) => {
+    console.warn('warn:', msg);
+});
 
 
 function outputFeature (name, feature) {
