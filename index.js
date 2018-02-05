@@ -8,7 +8,7 @@ const app = express();
 
 const instance = unleash.initialize({
     appName: 'demo-app',
-    url: 'http://localhost:4242/api/',
+    url: 'http://unleash.herokuapp.com/api/',
     refreshIntervall: 1000,
     metricsInterval: 500,
     strategies: [
@@ -26,18 +26,18 @@ instance.on('ready', () => {
 
     setInterval(() => {
         toggles.forEach(toggleName => {
-            unleash.isEnabled(toggleName, null, Boolean(Math.round(Math.random() * 2)));
+            unleash.isEnabled(toggleName, {userId: 123}, Boolean(Math.round(Math.random() * 2)));
         });
     }, 100);
 
     setInterval(() => {
-        unleash.isEnabled('toggle-x', null, Boolean(Math.round(Math.random() * 2)));
+        unleash.isEnabled('toggle-x', {userId: 1}, Boolean(Math.round(Math.random() * 2)));
     }, 50);
     setInterval(() => {
-        unleash.isEnabled('toggle-2', null, Boolean(Math.round(Math.random() * 2)));
+        unleash.isEnabled('toggle-2', {userId: 42}, Boolean(Math.round(Math.random() * 2)));
     }, 100);
     setInterval(() => {
-        unleash.isEnabled('toggle-3', null, Boolean(Math.round(Math.random() * 2)));
+        unleash.isEnabled('toggle-3', {userId: 4}, Boolean(Math.round(Math.random() * 2)));
     }, 5);
 });
 instance.on('error', (err) => {
